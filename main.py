@@ -6,6 +6,8 @@ Continuously scraping advertisement website for new ads with selenium
 import os
 import sys
 import time
+from datetime import datetime
+
 import pandas as pd
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
@@ -39,7 +41,9 @@ class Scraper():
         for _ in range(self.repetitions):
             print("Next check starts in " + str(self.frequency) + " minute(s).")
             time.sleep(60*self.frequency)
-            print("Scraping started at "+str(time.localtime()))
+            now = datetime.now()
+            current_time = now.strftime("%H:%M:%S")
+            print("Scraping started at " + current_time)
             self.scrape()
 
         self.export()
@@ -101,8 +105,8 @@ class Scraper():
                 if  latest_list_id != self.last_item_id:
                     self.last_item_id = latest_list_id
                     print("New advertisement found!")
-                    self.stored_data['data'].append()
-                    self.stored_data['url'].append()
+                    self.stored_data['title'].append(self.get_title_attr(listings[0], 'text'))
+                    self.stored_data['url'].append(self.get_title_attr(listings[0], 'href'))
                     print(self.get_title_attr(listings[0], 'text'))
 
                     php_url = "https://sorbusdigital.com/storage/sendnoti.php?mailto=" + \
@@ -111,7 +115,7 @@ class Scraper():
 
                     driver.get(php_url)
                 else:
-                    print("No new ad appeared during this cycle.")
+                    print("No new ad appeared during this cycle.\n")
 
         finally:
             driver.quit()
